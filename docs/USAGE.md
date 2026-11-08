@@ -108,4 +108,3 @@ python scripts/secret_scan.py --history
 ```
 
 The publication candidate passes 59 offline tests. Tests use synthetic fixtures and mocked providers. They cover the billing stop, 4xx, 5xx and timeout retries, resume, and caps. They do not use real scans or real transcriptions.
-
