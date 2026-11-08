@@ -87,3 +87,18 @@ def test_interruption_after_raw_before_ledger_retains_evidence(tmp_path):
     resumed, second = dispatcher(tmp_path, lambda r: ok_result())
     assert resumed.dispatch_reading(**args).kind == "skipped_unknown"
     assert not second.calls
+
+
+def test_existing_release_refuses_changed_request_context(tmp_path, monkeypatch):
+    from test_pipeline import CONFIG, ROOT
+    from jurors_harness.config import load_config
+    from jurors_harness.runbook import execute, make_dispatcher, prepare, publish
+    monkeypatch.setenv("JURORS_HARNESS_AUTHORIZE", "synthetic-1939-demo")
+    config = load_config(CONFIG, root=ROOT, work_override=tmp_path / "work")
+    assert execute(config) == 0
+    machine = make_dispatcher(config)
+    entries = prepare(config)
+    assert publish(config, entries, machine)
+    machine.routes["reader_a"] = replace(machine.routes["reader_a"], temperature=0.8)
+    with pytest.raises(RuntimeError, match="new release"):
+        publish(config, entries, machine)

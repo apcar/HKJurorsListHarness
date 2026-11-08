@@ -15,7 +15,7 @@ from jurors_harness.evaluate import (
 )
 from jurors_harness.hashing import sha256_bytes, sha256_file
 from jurors_harness.inventory import freeze_baseline, hash_crops, load_frozen_rows, load_inventory, write_census
-from jurors_harness.io_util import read_json
+from jurors_harness.io_util import read_json, write_json
 from jurors_harness.parsing import parse_adjudication, parse_reading
 from jurors_harness.planning import write_plan
 from jurors_harness.prompts import informed_prior_block, render_adjudication, render_blind
@@ -179,9 +179,17 @@ def publish(config: RunConfig, entries: list[dict], dispatcher: Dispatcher | Non
     ledger_paths = [config.work_dir / "ledger.jsonl", *inherited]
     ledger_paths = [path for path in ledger_paths if path.exists()]
     release = config.work_dir / "release" / config.release_id
+    material = {
+        "entries": entries, "fields": config.fields,
+        "requests": [[*key, *value] for key, value in sorted(_expected_requests(config, entries, dispatcher).items())]
+            if dispatcher is not None else [],
+    }
     if release.exists():
+        snapshot = release / "MATERIAL-REQUESTS.json"
+        if not snapshot.exists() or read_json(snapshot) != material:
+            raise RuntimeError("material context changed or unrecorded; use a new release identifier")
         return release
-    return write_release(
+    result = write_release(
         config,
         entries,
         decisions,
@@ -192,6 +200,8 @@ def publish(config: RunConfig, entries: list[dict], dispatcher: Dispatcher | Non
         repairs,
         ledger_paths,
     )
+    write_json(result / "MATERIAL-REQUESTS.json", material)
+    return result
 
 
 def execute(config: RunConfig, *, transport=None, source: Path | None = None) -> int:
@@ -306,12 +316,8 @@ def _hints(config, entries, readings, rows, *, billing: bool, stop_reason: str |
     return hints
 
 
-def compatible_rows(config: RunConfig, entries: list[dict], dispatcher: Dispatcher) -> list[dict]:
-    """Do not let publish-only or budget-stopped runs select stale ledger decisions.
-
-    Historical evidence deliberately uses the separate narrow importer, not this cache.
-    All original ledger rows still count toward costs and reserves.
-    """
+def _expected_requests(config: RunConfig, entries: list[dict], dispatcher: Dispatcher) -> dict:
+    """Compute current full material request identities without dispatching."""
     expected = {}
     by_id = {e["entry_id"]: e for e in entries}
     for entry in entries:
@@ -333,6 +339,12 @@ def compatible_rows(config: RunConfig, entries: list[dict], dispatcher: Dispatch
             fields=config.fields, candidates=item.get("shown") or [], prior_block=prior)
         request = dispatcher._request(route, prompt, _crop_bytes(config, entry), route.max_tokens, entry["entry_id"], 1)
         expected[(entry["entry_id"], "adjudication")] = (entry["crop_sha256"], material_request_sha256(request))
+    return expected
+
+
+def compatible_rows(config: RunConfig, entries: list[dict], dispatcher: Dispatcher) -> list[dict]:
+    """Filter decisions without deleting historical costs, reserves, or raw evidence."""
+    expected = _expected_requests(config, entries, dispatcher)
     return [row for row in dispatcher.rows() if row.get("step") == "probe" or
         expected.get((row.get("line_id"), row.get("step"))) ==
         (row.get("crop_sha256"), (row.get("input_sha256") or {}).get("material_request"))]
