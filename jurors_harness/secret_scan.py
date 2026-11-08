@@ -106,7 +106,7 @@ def scan_history(root: Path) -> list[Finding]:
     findings: list[Finding] = []
     for needle in _history_needles():
         result = subprocess.run(
-            ["git", "grep", "-I", "-n", "-F", needle, *revisions],
+            ["git", "grep", "-I", "-n", "-F", "-e", needle, "--", *revisions],
             cwd=root,
             check=False,
             capture_output=True,
