@@ -98,6 +98,7 @@ def cache_identity(row: dict) -> tuple:
         row.get("model"),
         row.get("prompt_version"),
         row.get("line_id"),
+        (row.get("input_sha256") or {}).get("material_request"),
     )
 
 

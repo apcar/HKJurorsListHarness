@@ -3,7 +3,7 @@
 One probe before each bulk stage. The first billing error stops every paid
 stage. 4xx responses are not retried. 5xx and timeouts get at most two
 retries, each with a new reservation and backoff. There is no provider fallback.
-Completed calls are cached by year, crop hash, stage, model, and prompt version.
+Completed calls are cached by full material request hash and source identity.
 """
 
 from __future__ import annotations
@@ -332,17 +332,18 @@ class Dispatcher:
         probe: bool,
         validate,
     ) -> CallOutcome:
-        # Cache identity is year, crop hash, stage, model, and prompt version, plus the
-        # entry id so two lines never share one paid call. The template hash is used
-        # rather than the rendered text, which only adds the entry id.
+        # Hash the exact wire body (including rendered candidates, priors, and image),
+        # destination, and material transport settings before consulting saved calls.
         version = f"{route.prompt_version} sha256:{route.prompt_sha256}"
         if probe:
             version = f"probe sha256:{route.prompt_sha256}"
+        request = self._request(route, prompt, image, max_tokens or route.max_tokens, line_id, 1)
+        request_sha = material_request_sha256(request)
         existing = [
             row
             for row in self.rows()
             if cache_identity(row)
-            == (self.year, crop_sha, step, route.model, version, line_id)
+            == (self.year, crop_sha, step, route.model, version, line_id, request_sha)
         ]
         success = next((row for row in existing if row.get("outcome") == "ok"), None)
         if success is not None:
@@ -402,6 +403,7 @@ class Dispatcher:
                 image=image,
                 prompt=prompt,
             )
+            record["input_sha256"]["material_request"] = request_sha
             self._persist_raw(attempt_id, result, record)
             append_ledger(self.ledger_path, record)
             append_jsonl(
@@ -800,3 +802,13 @@ def _mime(image: bytes) -> str:
     if image.startswith(b"RIFF"):
         return "image/webp"
     return "application/octet-stream"
+
+
+def material_request_sha256(request: ProviderRequest) -> str:
+    """Canonical wire request identity. Credentials and attempt IDs are never included."""
+    from jurors_harness.hashing import sha256_text
+    return sha256_text(json.dumps({
+        "provider": request.provider, "url": request.url,
+        "body": request.body, "timeout": request.timeout,
+        "model": request.model,
+    }, sort_keys=True, ensure_ascii=False, separators=(",", ":")))

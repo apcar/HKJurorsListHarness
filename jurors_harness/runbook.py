@@ -21,7 +21,7 @@ from jurors_harness.planning import write_plan
 from jurors_harness.prompts import informed_prior_block, render_adjudication, render_blind
 from jurors_harness.publish import decide_all, load_adjudications, reference_flags, score_sample, write_release
 from jurors_harness.resume import write_resume
-from jurors_harness.router import Dispatcher, ScriptedTransport, Transport
+from jurors_harness.router import Dispatcher, ScriptedTransport, Transport, material_request_sha256
 
 READER_STAGES = ("reader_a", "reader_b")
 
@@ -166,7 +166,7 @@ def run_adjudication(config: RunConfig, dispatcher: Dispatcher, entries: list[di
 
 
 def publish(config: RunConfig, entries: list[dict], dispatcher: Dispatcher | None) -> Path | None:
-    rows = dispatcher.rows() if dispatcher is not None else []
+    rows = compatible_rows(config, entries, dispatcher) if dispatcher is not None else []
     readings = readings_from_ledger(rows, config.fields)
     adjudications, repairs = load_adjudications(rows, config.fields)
     billing = bool(dispatcher and dispatcher.billing_active())
@@ -208,7 +208,7 @@ def execute(config: RunConfig, *, transport=None, source: Path | None = None) ->
         return 0
     dispatcher = make_dispatcher(config, transport)
     notes = run_readers(config, dispatcher, entries)
-    readings = readings_from_ledger(dispatcher.rows(), config.fields)
+    readings = readings_from_ledger(compatible_rows(config, entries, dispatcher), config.fields)
     compare_entries(config, entries, readings)
     assign_sample(config, entries, readings)
     write_learning_flags(config, entries, readings)
@@ -304,3 +304,35 @@ def _hints(config, entries, readings, rows, *, billing: bool, stop_reason: str |
         else:
             hints[entry["entry_id"]] = "pending_budget"
     return hints
+
+
+def compatible_rows(config: RunConfig, entries: list[dict], dispatcher: Dispatcher) -> list[dict]:
+    """Do not let publish-only or budget-stopped runs select stale ledger decisions.
+
+    Historical evidence deliberately uses the separate narrow importer, not this cache.
+    All original ledger rows still count toward costs and reserves.
+    """
+    expected = {}
+    by_id = {e["entry_id"]: e for e in entries}
+    for entry in entries:
+        if not entry.get("included") or not entry.get("crop_sha256"):
+            continue
+        image = _crop_bytes(config, entry)
+        for stage in READER_STAGES:
+            route = dispatcher.routes[stage]
+            prompt = render_blind(route.prompt_text, entry_id=entry["entry_id"], year=config.year)
+            request = dispatcher._request(route, prompt, image, route.max_tokens, entry["entry_id"], 1)
+            expected[(entry["entry_id"], stage)] = (entry["crop_sha256"], material_request_sha256(request))
+    path = config.work_dir / "queue" / "FINAL-QUEUE.json"
+    priors = _priors_by_entry(config) if config.reveal_priors else {}
+    for item in (read_json(path) if path.exists() else []):
+        entry = by_id[item["entry_id"]]
+        route = dispatcher.routes["adjudication"]
+        prior = informed_prior_block(priors[entry["entry_id"]]) if priors.get(entry["entry_id"]) else ""
+        prompt = render_adjudication(route.prompt_text, entry_id=entry["entry_id"], year=config.year,
+            fields=config.fields, candidates=item.get("shown") or [], prior_block=prior)
+        request = dispatcher._request(route, prompt, _crop_bytes(config, entry), route.max_tokens, entry["entry_id"], 1)
+        expected[(entry["entry_id"], "adjudication")] = (entry["crop_sha256"], material_request_sha256(request))
+    return [row for row in dispatcher.rows() if row.get("step") == "probe" or
+        expected.get((row.get("line_id"), row.get("step"))) ==
+        (row.get("crop_sha256"), (row.get("input_sha256") or {}).get("material_request"))]
