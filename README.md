@@ -1,76 +1,69 @@
 # Hong Kong Jurors List Harness
 
-A custom Python harness for literal transcription of historical printed lists: two blind model readers, strict comparison, one bounded adjudication, explicit uncertainty, and reproducible releases.
+I wanted to follow my family through British colonial Hong Kong records. The juror lists seemed like a good place to start: year after year of printed names, occupations, and addresses, offering clues about where people lived and worked.
 
-I built this around the Hong Kong Jurors Lists because a plausible reading is not necessarily what the printer put on the page. Models and reference transcriptions can agree while silently correcting the same unusual spelling. This harness preserves the distinction between agreement, informed judgment, and verification.
+The task looked straightforward. Read the pages, extract the rows, and follow people across years. Then models started improving the spelling, addresses landed against the wrong names, and agreement between two model readers turned out to be less reassuring than it sounded.
 
-**Status: experimental, demonstrated on retained real-source evidence.** The 1940 acceptance case migrated 3,505 pilot entries without changing the retained edition, preserved historical provenance, and replayed releases with network access blocked. It required no new paid transcription calls. It did not establish perfect accuracy or a complete-year edition. [Read the acceptance results and limits](docs/ACCEPTANCE-1940.md).
+This repository contains the Python software I built to make that work more dependable. It is a **transcription harness**: a workflow around the models that controls what they read, compares their answers, preserves the evidence, and leaves uncertainty visible.
 
-## What is demonstrated
+The aim is **diplomatic transcription**—preserving what the source actually says, including unusual spellings, abbreviations, and punctuation. A corrected spelling may help a search. It should not silently replace the historical record.
 
-| Capability | Evidence |
+## Why these lists—and why the details matter
+
+The Hong Kong Jurors Lists recorded men eligible for jury service. The series spans 88 years, from 1854 to 1941. Our working reference inventory contains roughly 98,000 annual entries across 87 retrieved years: a provisional inventory, not a verified source census or a count of unique people.
+
+For my Apcar family research, those recurring entries offer a way to trace people, employers, and addresses over time. But an entry can span several lines, and the relationship between columns matters as much as the words. Reading an address correctly is little help if it ends up attached to the wrong person.
+
+Some examples from selected checks:
+
+| What happened | Why it matters |
 |---|---|
-| Workflow, cost controls, request-aware caching, and restart mechanics | 59 passing offline tests in the publication candidate |
-| Real-evidence migration | 3,505 entries; 10,988 reading variants and 497 informed decisions imported with disclosed provenance gaps |
-| Bounded real-source workflow | Five purposive cases exercised comparison, decisions, and release construction using retained evidence |
-| Deterministic replay | Both acceptance releases reproduced byte-for-byte with network connections refused |
-| Accuracy | Model-reviewed evidence only; no independent human labels or perfection claim |
+| Haiku expanded printed `Ld.` to `Ltd.` | One added letter turned the source abbreviation into a more familiar one. |
+| Flash changed printed `Shamsuipo` to `Shamshuipo` | A useful search spelling replaced the literal reading. |
+| A local OCR configuration assigned an address to another person | Correctly read words became an incorrect record. |
 
-The repository contains code and synthetic fixtures, not historical scans, the private acceptance corpus, or a published juror edition. The synthetic images are generated color blocks: the demo exercises plumbing and policy, not recognition quality.
+These are documented examples, not a model leaderboard or an estimate of error rates. They show the kinds of mistakes the workflow needs to expose. [The experiments and their limits](docs/MODEL-JOURNEY.md).
 
-## Architecture
+![Explanatory illustration of Ld. being changed to Ltd.; not a historical scan](docs/images/literal-vs-normalized.svg)
 
-```mermaid
-flowchart LR
-    I[Inventory and crop hashes] --> A[Blind reader A]
-    I --> B[Blind reader B]
-    A --> C[Strict comparison]
-    B --> C
-    C --> D[Deduplicated unresolved fields]
-    D --> E[One informed adjudication]
-    C --> F[Versioned dispositions]
-    E --> F
-    F --> G[Release and offline replay]
-    F --> H[Reference discrepancy flags]
-```
+## From better prompts to a repeatable workflow
 
-This is model orchestration controlled by Python. Models supply bounded readings and judgments; they do not choose their own tools, expand the task, or launch additional agents. The router uses configured routes, not automatic model selection. Lexicon and cross-year “learning” are flags, not model training.
+So I kept tinkering. I tried different optical character recognition (OCR) tools, local models, hosted readers, stricter prompts, and repaired image crops. Some changes helped. Others introduced new problems. Getting useful text was relatively easy; knowing what I could trust took more engineering.
 
-## My role and AI assistance
+This became an exercise in **custom harness engineering**: giving the checking process a defined sequence and rules the software could enforce. Two model readers independently transcribe the source. Neither sees the other’s answer or the reference transcription. The software then compares their output strictly, including punctuation and accents.
 
-Andrew Greene: problem definition, source and evidence standards, workflow direction, acceptance criteria, review, and iteration. AI coding and review agents helped implement, test, and critique the software. The Git history retains that assistance and the subsequent fixes. The engineering record matters more than a claim to have written every line unaided.
+Unresolved fields receive one adjudication pass, which can inspect the source and the competing readings. If the evidence still does not support a decision, the result remains uncertain. Reference text enters only after those readings and decisions, as a separate cross-check.
 
-## Pipeline
+![Two blind readers, strict comparison, bounded adjudication, and a versioned result](docs/images/bounded-workflow.svg)
 
-For one year, witness, and edition:
+The engineering around that sequence serves four purposes:
 
-1. **Census** the supplied inventory. A detector count, a reference count, and a source-derived count stay separate. None of them is a completeness certificate.
-2. **Freeze** a baseline and a manifest. The baseline is a comparison text, not the source.
-3. **Hash crops.** A changed file is a new hash, not a silent overwrite.
-4. **Two blind readers.** Each sees the crop, the field schema, and a versioned prompt. Neither sees the other reader, the baseline, a reference, cross-year names, or a line-specific typo note.
-5. **Strict comparison** under Unicode NFC. Punctuation, spaces, accents, abbreviation dots, internal line breaks, and marks all count.
-6. **Dedupe** unresolved fields into one case. Identical candidate text keeps every evidence id.
-7. **One adjudication.** Candidates are anonymous and scan-derived. The order is counterbalanced, not described as a shuffle. There is no second deliberation and no provider fallback.
-8. **Disposition.** Each included entry is SETTLED, CORRECTED against the frozen baseline, or UNCERTAIN. Excluded inventory rows are EXCLUDED, with a reason. Operational state (billing stop, missing crop, budget) is a separate column.
-9. **Reference flags,** only after decisions, and only as field names. A mismatch does not buy another reading and does not change the decision.
-10. **Stratified sample,** frozen before adjudication.
-11. **Release candidate** plus a closeout-and-omissions note, and an `UNCERTAIN-LINES-v1` export for a future review tool.
+- **Keep the evidence:** source hashes, versioned prompts, separate readings, and traceable decisions.
+- **Apply consistent checks:** literal comparison, with reference text kept out of the initial reading and decision stages.
+- **Control spending:** stage budgets, cost reservations before calls, a global billing stop, and explicit handling of unknown charges.
+- **Recover reliably:** caching tied to the request, interruption recovery, and byte-for-byte replay of released results.
 
-## Install
+Python controls the sequence and the configured model routes. Models do not choose tools or launch agents. General-purpose AI tools helped me build and investigate; the repeating transcription job needed rules the software could enforce.
 
-Python 3.11 or newer. The runtime dependency set is the standard library.
+Some of the most useful work came from finding gaps in those rules. A cached answer must match the full material request that produced it: the relevant inputs, prompts, candidates, and model settings, not credentials or incidental attempt identifiers. A saved release must refuse changed context instead of returning stale output. If a call is interrupted and its outcome is unknown, its cost reservation must remain in place rather than quietly allowing another dispatch.
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-```
+Those failure paths now have [offline regression tests](tests/test_material_cache.py). The [repair notes](docs/devlog/2026-11-08-local-acceptance-mechanics.md) record what failed and what changed.
 
-From a checkout you can also run `python -m jurors_harness` without installing.
+## What has been demonstrated
 
-## Run the synthetic year
+The first acceptance case asked a practical question: could the harness take an existing body of transcription work, preserve its readings and decisions, and reproduce its releases without contacting a model again?
 
-The checked-in year is fake. Names such as Alfa Example are fixtures, not jurors. The provider is `scripted`, so the demo does not call the network and does not need a key. It still goes through probes, the ledger, reservations, and the release.
+**The 1940 case passed that test.** It migrated 3,505 pilot entries using retained historical evidence and reproduced both releases with networking blocked. The exercise made no new paid transcription calls; the earlier readings still had their original costs. Five selected real-source cases also exercised comparison, decisions, and release construction using retained evidence, and an interrupted import resumed cleanly.
+
+The retained edition records **3,058 settled, 84 corrected, and 363 uncertain entries**. Those are workflow outcomes, not independently verified accuracy labels. The 33 page-1 Special entries remain excluded, full original request settings are missing for 6,547 imported readings, and there are no independent human labels establishing the true error rate.
+
+The result demonstrates migration, preservation, and replay. It does not establish perfect transcription or a complete year. Earlier work also produced local 1906 and 1908 editions under different workflows. [Acceptance evidence and limits](docs/ACCEPTANCE-1940.md).
+
+**59 offline tests pass.** This repository includes the code, original diagrams, and synthetic fixtures. It excludes the private historical corpus, so the historical acceptance case cannot be independently reproduced from this repository alone. The synthetic demo below provides a way to exercise the workflow yourself.
+
+## Try it without an API key
+
+You need Python 3.11 or later. Runtime dependencies are limited to the standard library. From the checkout:
 
 ```bash
 export JURORS_HARNESS_AUTHORIZE=synthetic-1939-demo
@@ -79,78 +72,34 @@ python -m jurors_harness run \
   --work runs/synthetic-1939-demo
 ```
 
-`JURORS_HARNESS_AUTHORIZE` must equal the config `run_id`. Without it the command freezes the inventory, writes `PLAN.json` and `RESUME.md`, and does not dispatch.
+The demo uses scripted provider responses: no network calls or paid inference. Names are invented, images are color blocks, and ledger costs are simulated. It exercises the workflow, not OCR quality.
 
-A real route file, with dispatch left off, is `configs/examples/openrouter-gemini.json`. Copy it, point `inputs_dir` at your own inventory, set caps, and keep `authority.dispatch` false until a plan looks right.
+The [usage guide](docs/USAGE.md) covers installation, inputs, budgets, resuming interrupted work, and replay.
 
-## Run a real year
+## Why this may be useful beyond family history
 
-Prepare three inputs, using paths relative to the repository root:
+The problem extends beyond historical lists. In invoices, contracts, and personal records, correctly extracted words can still be attached to the wrong person, party, or transaction. A fluent answer can conceal a structural error.
 
-- `inventory.csv` with one row per entry. Included and excluded rows both belong in the file. Page 1 stays if it is in the inventory; the 1940 omission of page 1 is not a template.
-- `census.json` stating whether a source census is actually established, plus detector, reference, and source-derived counts as separate measures.
-- Crop files named by the inventory. Optional `reference.csv`, `priors.csv`, and `lexicon.jsonl` are flags only.
+That is the case for **custom harness engineering**: giving a repeated task’s rules somewhere to live beyond a prompt. Models can change while evidence requirements, spending limits, and acceptance checks remain explicit and inspectable.
 
-Set `authority.dispatch` to true only when the caps are real. Export `OPENROUTER_API_KEY` and `GEMINI_API_KEY` as needed. Keys are read from the environment at call time and are not written to the ledger.
+This project explores that approach through one specific task. It remains experimental; it does not establish production readiness for other document domains.
 
-```bash
-python -m jurors_harness validate --config path/to/year.json
-python -m jurors_harness plan --config path/to/year.json
-export JURORS_HARNESS_AUTHORIZE=<the run_id>
-python -m jurors_harness run --config path/to/year.json
-```
+## What comes next
 
-Individual stages are the same commands: `census`, `freeze`, `crops`, `read`, `compare`, `sample`, `queue`, `adjudicate`, `release`, `ledger`, `status`.
+I’m working toward a second real year through the harness, stronger review of weak evidence, and a test on an unseen layout. The measure I care about is total cost per accepted entry, including checking and repair. [Roadmap](docs/ROADMAP.md).
 
-Dispatch also requires a total cap, a budget for every stage (`probe`, `reader_a`, `reader_b`, `adjudication`, `sample_label`), and a per-call price ceiling. Stage budgets must fit in the total. Unused budget is not moved to another stage. Concurrency above one is refused.
+I set the research question, source standards, workflow, and acceptance criteria. AI coding and review agents helped implement, test, and challenge the software. The development history retains their contribution and the repairs. I’m sharing the working artifact, including where it still falls short.
 
-## Resume
+[Pipeline](docs/PIPELINE.md) · [Policies](docs/POLICIES.md) · [Cost ledger](docs/LEDGER.md) · [Development notes](docs/devlog/) · [Contributing](CONTRIBUTING.md) · [More of my work](https://impresa.com/)
 
-Completed calls are cached using the full material request identity, including rendered prompts, candidate context, image bytes, model settings, destination, and timeout, alongside entry and stage identity. Credentials are excluded. Incompatible historical rows are not silently reused as current calls. A second `run` skips those calls. The ledger is append-only, so the restart does not pay them again.
+## Credits and license
 
-On any stop the work directory gets `RESUME.md` and `RESUME.json`:
+This work builds on a substantial contribution by **David Bellis and the Gwulo community**. From July 2010 to June 2026, volunteers typed 1,769 pages covering the 1854–1941 series, making difficult-to-search scans searchable.
 
-- A **402 or other billing error** stops every stage and every route. Nothing falls through to another provider. Resume only after the account is funded, by setting `authority.acknowledge_billing_stop` to the timestamp in `BILLING-STOP.json`. Do not delete the ledger.
-- A **cap** stops before the next worst-case reservation would exceed the stage budget or the total. Unknown-charge reserves, including timeouts, stay counted.
-- A **crash during a call** leaves an open reservation. That attempt is an unknown outcome. It is not treated as free, and it is not silently sent again unless `authority.retry_unknown_attempts` is set.
+The [completion account](https://gwulo.com/node/62380) acknowledges 61 contributor names and usernames. Bellis notes that the formats are mixed and the list may be incomplete, so this is an acknowledgment count rather than a verified count of distinct volunteers.
 
-4xx responses are not retried. 5xx and timeouts are retried at most twice, with backoff, and each attempt reserves again.
+Their nearly 16-year effort began long before today’s widely accessible AI tools. It made these records useful to researchers and helped me understand what was worth attempting. HKU Libraries supplied the scans that enabled both projects.
 
-## Replay
+Here, Gwulo’s transcription serves as a cross-check after the source readings and decisions. It is not redistributed, and no endorsement is implied.
 
-Replay rebuilds the release CSV from the frozen baseline, the overlay, and the dispositions. It does not call a model and it does not use the network.
-
-```bash
-python -m jurors_harness replay \
-  --rcdir runs/<run-id>/release/<release-id> \
-  --output /tmp/<release-id>.replayed.csv
-python -m jurors_harness verify-release --rcdir runs/<run-id>/release/<release-id>
-```
-
-The output path must not already exist. `verify-release` checks byte equality with the CSV written at publish time.
-
-`verify-1940` checks an **externally supplied** 1940 RC1 against the frozen row count, SHA-256, and disposition totals. Those files are not in this repository. Passing the checker is not something this tree claims to have done.
-
-## Learning and review export
-
-A printer's-typo lexicon and cross-year name file can flag lines after the blind reads. By default those flags stay out of adjudication. Setting `learning.reveal_priors_at_adjudication` to true uses a distinct prompt version and labels the block as informed prior context, still without reference text. Blind reads never receive either file.
-
-`UNCERTAIN-LINES-v1` JSONL, with `UNCERTAIN-INDEX.csv`, is the handoff for a future human review tool. This repository does not include that tool.
-
-## Tests
-
-```bash
-pytest
-python scripts/secret_scan.py
-python scripts/secret_scan.py --history
-```
-
-The publication candidate passes 59 offline tests. Tests use synthetic fixtures and mocked providers. They cover the billing stop, 4xx, 5xx and timeout retries, resume, and caps. They do not use real scans or real transcriptions.
-
-## License and rights
-
-Software, original documentation, and synthetic fixtures are available under the [MIT license](LICENSE). External source material has separate rights; see [DATA-NOTICE.md](DATA-NOTICE.md). No historical scans, reference text, or private run evidence are licensed by this code release.
-
-## Build in public
-
-The next milestone is a second real-year workflow through the harness. Broader accuracy and layout-transfer claims remain unproven. See the [development notes](docs/devlog/) for the design and fixes, and [Impresa](https://impresa.com/) for Andrew’s broader work.
+The [MIT license](LICENSE) covers the software, original documentation, and synthetic fixtures. Historical scans, family photographs, reference text, and private run evidence are excluded. [Data notice](DATA-NOTICE.md).
