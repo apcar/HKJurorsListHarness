@@ -102,3 +102,29 @@ def test_existing_release_refuses_changed_request_context(tmp_path, monkeypatch)
     machine.routes["reader_a"] = replace(machine.routes["reader_a"], temperature=0.8)
     with pytest.raises(RuntimeError, match="new release"):
         publish(config, entries, machine)
+
+
+def test_unauthorized_adjudication_stage_cannot_dispatch(tmp_path, monkeypatch):
+    from test_pipeline import CONFIG, ROOT
+    from jurors_harness.config import load_config
+    from jurors_harness import cli
+    monkeypatch.delenv("JURORS_HARNESS_AUTHORIZE", raising=False)
+    config = load_config(CONFIG, root=ROOT, work_override=tmp_path / "work")
+    calls=[]
+    monkeypatch.setattr(cli,"run_adjudication",lambda *a: calls.append("called") or [])
+    assert cli._stage(config,"adjudicate") == 2
+    assert not calls
+
+
+def test_cli_queue_ignores_incompatible_readings(tmp_path, monkeypatch):
+    from test_pipeline import CONFIG, ROOT
+    from jurors_harness.config import load_config
+    from jurors_harness.runbook import execute
+    from jurors_harness import cli
+    from jurors_harness.io_util import read_csv
+    monkeypatch.setenv("JURORS_HARNESS_AUTHORIZE", "synthetic-1939-demo")
+    config = load_config(CONFIG, root=ROOT, work_override=tmp_path / "work")
+    assert execute(config) == 0
+    config.routes["reader_a"] = replace(config.routes["reader_a"],temperature=0.8)
+    assert cli._stage(config,"queue") == 0
+    assert all(r["reader_a"]=="" for r in read_csv(config.work_dir / "compare/COMPARISON.csv"))

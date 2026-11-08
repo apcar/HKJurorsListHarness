@@ -16,7 +16,7 @@ from jurors_harness.io_util import read_jsonl
 from jurors_harness.ledger import money_totals, per_thousand
 from jurors_harness.planning import write_plan
 from jurors_harness.replay import build_release_csv, verify_release
-from jurors_harness.runbook import execute, make_dispatcher, prepare, publish, run_adjudication, run_readers
+from jurors_harness.runbook import compatible_rows, execute, make_dispatcher, prepare, publish, run_adjudication, run_readers
 from jurors_harness.secret_scan import scan_history, scan_tree
 
 
@@ -145,7 +145,7 @@ def _stage(config: RunConfig, command: str) -> int:
         from jurors_harness.config import dispatch_allowed
 
         allowed, why = dispatch_allowed(config)
-        if command == "read" and not allowed:
+        if command in {"read", "adjudicate"} and not allowed:
             print(f"error: {why}", file=sys.stderr)
             return 2
         dispatcher = make_dispatcher(config)
@@ -154,7 +154,9 @@ def _stage(config: RunConfig, command: str) -> int:
         for note in notes:
             print(note)
         return 3 if dispatcher.billing_active() else 0
-    readings = readings_from_ledger(read_jsonl(config.work_dir / "ledger.jsonl"), config.fields)
+    if dispatcher is None:
+        dispatcher = make_dispatcher(config)
+    readings = readings_from_ledger(compatible_rows(config, entries, dispatcher), config.fields)
     if command == "compare":
         compare_entries(config, entries, readings)
         return 0
