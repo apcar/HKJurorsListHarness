@@ -1,0 +1,25 @@
+.env
+*.env
+!.env.example
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Local evidence. The harness writes these; they are not source.
+runs/
+data/
+scans/
+ledgers/
+uploads/
+
+# Provider logs and scratch
+*.log
+.DS_Store

@@ -1,0 +1,14 @@
+{
+  "title": "Blind reading v1",
+  "type": "object",
+  "required": ["entry_id", "name", "occupation", "abode"],
+  "properties": {
+    "entry_id": {"type": "string"},
+    "name": {"type": "string"},
+    "occupation": {"type": "string"},
+    "abode": {"type": "string"},
+    "ownership_uncertain": {"type": "boolean"},
+    "scan_loss": {"type": "boolean"},
+    "notes": {"type": "string"}
+  }
+}

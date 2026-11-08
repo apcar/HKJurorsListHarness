@@ -1,0 +1,8 @@
+entry_id,year,witness,edition,physical_page,printed_page_label,juror_class,slot,included,exclusion_reason,crop_file,baseline_name,baseline_occupation,baseline_abode,held,ownership_problem,scan_loss,edge_contact,normalization_hazard,hard_reason
+1939-synthetic-fixture-p0002-e0001,1939,synthetic,fixture,2,2,Common,1,true,,crops/e01.png,Alfa Example,clerk,1 Queen Road,false,false,false,false,false,
+1939-synthetic-fixture-p0002-e0002,1939,synthetic,fixture,2,2,Common,2,true,,crops/e02.png,*José Bravo,Ld.,Queens Rd.,false,false,false,true,true,
+1939-synthetic-fixture-p0002-e0003,1939,synthetic,fixture,2,2,Common,3,true,,crops/e03.png,Mr. Chan,clerk,2 Queen Road,false,false,false,false,false,
+1939-synthetic-fixture-p0001-e0004,1939,synthetic,fixture,1,1,Special,4,true,,crops/e04.png,Smith,tailor,3 Queen Road,false,false,false,false,false,
+1939-synthetic-fixture-p0003-e0005,1939,synthetic,fixture,3,3,Common,5,true,,crops/e05.png,,,,true,false,true,false,false,faint print
+1939-synthetic-fixture-p0004-e0006,1939,synthetic,fixture,4,4,supplement,6,false,supplement not in this edition,,,,,false,false,false,false,false,
+1939-synthetic-fixture-p0003-e0007,1939,synthetic,fixture,3,3,Common,7,true,,crops/e07.png,Colour,clerk,4 Queen Road,false,false,false,false,false,

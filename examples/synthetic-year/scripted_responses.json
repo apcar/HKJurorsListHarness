@@ -1,0 +1,284 @@
+{
+  "probe": {
+    "text": "{\"ok\": true}",
+    "tokens_in": 8,
+    "tokens_out": 4,
+    "cost_usd": 1e-05
+  },
+  "reader_a": {
+    "1939-synthetic-fixture-p0002-e0001": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "Alfa Example",
+        "occupation": "clerk",
+        "abode": "1 Queen Road",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0002-e0002": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "*José Bravo",
+        "occupation": "Ld.",
+        "abode": "Queen's Rd.",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0002-e0003": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "Mr. Chan",
+        "occupation": "clerk",
+        "abode": "2 Queen Road",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0001-e0004": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "Smith",
+        "occupation": "tailor",
+        "abode": "3 Queen Road",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0003-e0005": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "[illegible]",
+        "occupation": "[illegible]",
+        "abode": "[illegible]",
+        "ownership_uncertain": false,
+        "scan_loss": true,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0003-e0007": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "Colour",
+        "occupation": "clerk",
+        "abode": "4 Queen Road",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    }
+  },
+  "reader_b": {
+    "1939-synthetic-fixture-p0002-e0001": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "Alfa Example",
+        "occupation": "clerk",
+        "abode": "1 Queen Road",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0002-e0002": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "*José Bravo",
+        "occupation": "Ld.",
+        "abode": "Queen's Rd.",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0002-e0003": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "Mr Chan",
+        "occupation": "clerk",
+        "abode": "2 Queen Road",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0001-e0004": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "Smyth",
+        "occupation": "tailor",
+        "abode": "3 Queen Road",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0003-e0005": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "[illegible]",
+        "occupation": "[illegible]",
+        "abode": "[illegible]",
+        "ownership_uncertain": false,
+        "scan_loss": true,
+        "notes": ""
+      }
+    },
+    "1939-synthetic-fixture-p0003-e0007": {
+      "tokens_in": 80,
+      "tokens_out": 40,
+      "cost_usd": 0.0002,
+      "reading": {
+        "name": "Color",
+        "occupation": "clerk",
+        "abode": "4 Queen Road",
+        "ownership_uncertain": false,
+        "scan_loss": false,
+        "notes": ""
+      }
+    }
+  },
+  "adjudication": {
+    "1939-synthetic-fixture-p0002-e0003": {
+      "tokens_in": 120,
+      "tokens_out": 80,
+      "cost_usd": 0.0004,
+      "ownership_uncertain": false,
+      "notes": "",
+      "fields": {
+        "name": {
+          "exact": "Mr. Chan",
+          "outcome": "confirmed",
+          "uncertainty": "",
+          "explanation": "The abbreviation dot is printed.",
+          "chosen_candidate": "A"
+        },
+        "occupation": {
+          "exact": "Clerk",
+          "outcome": "confirmed",
+          "uncertainty": "",
+          "explanation": "Case differs from one candidate; ignored by the harness when the field was not queued.",
+          "chosen_candidate": ""
+        },
+        "abode": {
+          "exact": "2 Queen Road",
+          "outcome": "confirmed",
+          "uncertainty": "",
+          "explanation": "Both candidates agree.",
+          "chosen_candidate": ""
+        }
+      }
+    },
+    "1939-synthetic-fixture-p0001-e0004": {
+      "tokens_in": 120,
+      "tokens_out": 80,
+      "cost_usd": 0.0004,
+      "fields": {
+        "name": {
+          "exact": "Smyth",
+          "outcome": "corrected",
+          "uncertainty": "",
+          "explanation": "The print reads Smyth.",
+          "chosen_candidate": "new"
+        },
+        "occupation": {
+          "exact": "tailor",
+          "outcome": "confirmed",
+          "uncertainty": "",
+          "explanation": "The occupation is tailor.",
+          "chosen_candidate": ""
+        },
+        "abode": {
+          "exact": "3 Queen Road",
+          "outcome": "confirmed",
+          "uncertainty": "",
+          "explanation": "The abode matches the print.",
+          "chosen_candidate": ""
+        }
+      }
+    },
+    "1939-synthetic-fixture-p0003-e0005": {
+      "tokens_in": 120,
+      "tokens_out": 80,
+      "cost_usd": 0.0004,
+      "fields": {
+        "name": {
+          "exact": "[illegible]",
+          "outcome": "unresolved",
+          "uncertainty": "source illegible",
+          "explanation": "The glyphs are not readable.",
+          "chosen_candidate": ""
+        },
+        "occupation": {
+          "exact": "[illegible]",
+          "outcome": "unresolved",
+          "uncertainty": "source illegible",
+          "explanation": "The glyphs are not readable.",
+          "chosen_candidate": ""
+        },
+        "abode": {
+          "exact": "[illegible]",
+          "outcome": "better_source_needed",
+          "uncertainty": "clipped scan",
+          "explanation": "The line is too faint.",
+          "chosen_candidate": ""
+        }
+      }
+    },
+    "1939-synthetic-fixture-p0003-e0007": {
+      "tokens_in": 120,
+      "tokens_out": 80,
+      "cost_usd": 0.0004,
+      "fields": {
+        "name": {
+          "exact": "Color",
+          "outcome": "corrected",
+          "uncertainty": "",
+          "explanation": "the real word is Colour but I normalized to Color",
+          "chosen_candidate": "B"
+        },
+        "occupation": {
+          "exact": "clerk",
+          "outcome": "confirmed",
+          "uncertainty": "",
+          "explanation": "The occupation is clerk.",
+          "chosen_candidate": ""
+        },
+        "abode": {
+          "exact": "4 Queen Road",
+          "outcome": "confirmed",
+          "uncertainty": "",
+          "explanation": "The abode is clear.",
+          "chosen_candidate": ""
+        }
+      }
+    }
+  }
+}

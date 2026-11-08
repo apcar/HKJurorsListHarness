@@ -1,0 +1,13 @@
+{
+  "source_census_established": false,
+  "measures": {
+    "detector_count": null,
+    "reference_count": null,
+    "source_derived_count": 7
+  },
+  "duplicate_witnesses": [],
+  "supplements": [
+    "synthetic supplement row, excluded"
+  ],
+  "notes": "SYNTHETIC fixture. Not the 1939 jurors list and not a source census."
+}

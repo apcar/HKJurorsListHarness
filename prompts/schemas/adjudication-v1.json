@@ -1,0 +1,28 @@
+{
+  "title": "Adjudication v1",
+  "type": "object",
+  "required": ["entry_id", "name", "occupation", "abode"],
+  "properties": {
+    "entry_id": {"type": "string"},
+    "ownership_uncertain": {"type": "boolean"},
+    "notes": {"type": "string"},
+    "name": {"$ref": "#/$defs/field"},
+    "occupation": {"$ref": "#/$defs/field"},
+    "abode": {"$ref": "#/$defs/field"}
+  },
+  "$defs": {
+    "field": {
+      "type": "object",
+      "required": ["exact", "outcome"],
+      "properties": {
+        "exact": {"type": "string"},
+        "outcome": {
+          "enum": ["confirmed", "corrected", "unresolved", "better_source_needed", "neither"]
+        },
+        "uncertainty": {"type": "string"},
+        "explanation": {"type": "string"},
+        "chosen_candidate": {"type": "string"}
+      }
+    }
+  }
+}

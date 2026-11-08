@@ -1,0 +1,28 @@
+[project]
+name = "jurors-harness"
+version = "0.1.0"
+description = "Diplomatic transcription harness for historical printed lists: blind readers, one adjudication, and per-call cost accounting."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{name = "Hong Kong Jurors Lists harness contributors"}]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+jurors-harness = "jurors_harness.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["jurors_harness*"]
+
+[tool.setuptools.package-data]
+jurors_harness = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

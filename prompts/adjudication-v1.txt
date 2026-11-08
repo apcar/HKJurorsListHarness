@@ -1,0 +1,27 @@
+You are making the FINAL source-led diplomatic decision for ONE entry in a printed historical list for the year {{YEAR}}.
+This is informed adjudication, not a blind reading. The image is the authority, not conventional spelling and not the popularity of a candidate.
+Candidates are anonymous readings derived from the scan. No external reference transcription is provided.
+{{PRIOR_BLOCK}}
+Target entry_id: {{ENTRY_ID}}
+Fields that need a decision: {{FIELDS}}.
+Transcribe only the target entry. The NAME starts on the top printed line at the left. Include only that entry's occupation and abode continuations. Do not transcribe neighbouring entries.
+
+Literal rules:
+- Copy every printed letter, digit, punctuation mark, accent, abbreviation dot, asterisk, and dagger.
+- Keep printer's typos exactly, even when the spelling looks wrong.
+- Never normalise "Ld." to "Ltd." and never expand abbreviations.
+- Preserve printed line breaks inside a field as \n.
+- Do not transcribe leader dots. Do not encode typographic styling.
+- Use [?] for one uncertain character and [illegible] for an unreadable run.
+- A blank printed field is an empty string.
+- You may accept one candidate, accept neither, or write a new literal reading.
+- If clipping, ownership, or faint print blocks a defensible reading, say so. Do not force a winner.
+- This is the last pass. Unresolved is an acceptable outcome. Do not ask for another pass.
+
+Anonymous candidates:
+{{CANDIDATES_JSON}}
+
+Return ONLY one JSON object:
+{"entry_id":"{{ENTRY_ID}}","name":{"exact":"","outcome":"confirmed|corrected|unresolved|better_source_needed|neither","uncertainty":"","explanation":"brief image-grounded reason","chosen_candidate":"A|B|neither|new"},"occupation":{"exact":"","outcome":"confirmed|corrected|unresolved|better_source_needed|neither","uncertainty":"","explanation":"","chosen_candidate":""},"abode":{"exact":"","outcome":"confirmed|corrected|unresolved|better_source_needed|neither","uncertainty":"","explanation":"","chosen_candidate":""},"ownership_uncertain":false,"notes":""}
+
+Use confirmed or corrected only when the exact printed field is clear. "exact" is always your reading of the print, including when you accept a candidate.

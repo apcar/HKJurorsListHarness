@@ -1,0 +1,88 @@
+{
+  "schema": "jurors-harness-config-v1",
+  "run_id": "1939-example-not-authorized",
+  "year": 1939,
+  "witness": "synthetic",
+  "edition": "fixture",
+  "release_id": "1939-example-rc1",
+  "work_dir": "runs/1939-example-not-authorized",
+  "inputs_dir": "examples/synthetic-year",
+  "inventory": "inventory.csv",
+  "census": "census.json",
+  "reference": "reference.csv",
+  "priors": "priors.csv",
+  "lexicon": "lexicon.jsonl",
+  "fields": ["name", "occupation", "abode"],
+  "authority": {
+    "dispatch": false,
+    "price_ceiling_usd_per_call": 0.05,
+    "concurrency": 1
+  },
+  "caps": {
+    "total_usd": 5.0,
+    "stages": {
+      "probe": 0.1,
+      "reader_a": 2.0,
+      "reader_b": 1.5,
+      "adjudication": 1.2,
+      "sample_label": 0.2
+    }
+  },
+  "sample": {
+    "seed": 19391108,
+    "allocations": {
+      "held_or_source_loss": 20,
+      "reader_disagreement": 40,
+      "agreement_with_risk": 20,
+      "other_agreement": 20
+    }
+  },
+  "adjudication": {"order_seed": 19391109},
+  "learning": {
+    "reveal_priors_at_adjudication": false,
+    "export_prior_text": false
+  },
+  "retry": {"max_retries": 2, "backoff_seconds": 1.0},
+  "routes": {
+    "reader_a": {
+      "provider": "openrouter",
+      "model": "anthropic/claude-sonnet-5.5",
+      "env_key": "OPENROUTER_API_KEY",
+      "prompt_version": "blind-v1",
+      "prompt_path": "prompts/blind-v1.txt",
+      "temperature": 0,
+      "max_tokens": 1024,
+      "price_input_per_million": 2.0,
+      "price_output_per_million": 10.0,
+      "worst_input_tokens": 4000,
+      "timeout_seconds": 180
+    },
+    "reader_b": {
+      "provider": "gemini",
+      "model": "gemini-3.8-flash",
+      "env_key": "GEMINI_API_KEY",
+      "prompt_version": "blind-v1",
+      "prompt_path": "prompts/blind-v1.txt",
+      "temperature": 0,
+      "max_tokens": 1024,
+      "price_input_per_million": 0.75,
+      "price_output_per_million": 3.75,
+      "worst_input_tokens": 4000,
+      "timeout_seconds": 180,
+      "thinking_level": "low"
+    },
+    "adjudication": {
+      "provider": "openrouter",
+      "model": "anthropic/claude-sonnet-5.5",
+      "env_key": "OPENROUTER_API_KEY",
+      "prompt_version": "adjudication-v1",
+      "prompt_path": "prompts/adjudication-v1.txt",
+      "temperature": 0,
+      "max_tokens": 1024,
+      "price_input_per_million": 2.0,
+      "price_output_per_million": 10.0,
+      "worst_input_tokens": 4000,
+      "timeout_seconds": 180
+    }
+  }
+}

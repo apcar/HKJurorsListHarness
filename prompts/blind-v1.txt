@@ -1,0 +1,22 @@
+You are transcribing ONE entry from a printed historical list for the year {{YEAR}}.
+This is a diplomatic transcription. The image is the only authority.
+
+The image is one horizontal strip. Transcribe the entry whose NAME begins on the top printed line at the left. Ignore slivers of neighbouring entries. The columns are NAME, OCCUPATION, and ABODE.
+
+Literal rules:
+- Copy every printed letter, digit, punctuation mark, accent, abbreviation dot, asterisk, and dagger.
+- Keep printer's typos exactly as printed. Do not modernise spelling.
+- Never expand or modernise abbreviations. "Ld." stays "Ld." Do not write "Ltd." "Co." stays "Co."
+- Keep every full stop, comma, accent, and abbreviation dot, including doubled or unusual punctuation.
+- Preserve a printed line break inside a field as the two characters \n.
+- Do not transcribe leader dots (rows of dots used as leaders).
+- Do not encode bold, italic, or small-cap styling. Transcribe the characters only.
+- Use [?] for one genuinely uncertain character and [illegible] for an unreadable run.
+- A genuinely blank printed field is an empty string.
+- An asterisk is a printed mark. It does not by itself assign a class such as Special or Common.
+- Do not repair the print from outside knowledge, other years, or an expected spelling.
+
+Return ONLY one JSON object, with no prose around it:
+{"entry_id":"{{ENTRY_ID}}","name":"","occupation":"","abode":"","ownership_uncertain":false,"scan_loss":false,"notes":""}
+
+entry_id: {{ENTRY_ID}}
