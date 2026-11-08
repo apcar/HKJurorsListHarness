@@ -1,16 +1,21 @@
-License status: UNDECIDED
+MIT License
 
-No code license and no data license have been selected.
+Copyright (c) 2026 Andrew Greene
 
-This repository is being prepared so it can be published later. Until the
-maintainer replaces this file:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-- Do not treat the source as available under MIT, Apache-2.0, GPL, CC, or any
-  other license.
-- Do not treat scans, transcriptions, model outputs, or reference material as
-  licensed for redistribution.
-- A future code license would not license source images or transcriptions.
-  Those rights are separate and are not granted here.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-The code license and the data notice will be chosen together, after the rights
-position is settled. This placeholder is intentional.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

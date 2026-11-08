@@ -16,7 +16,7 @@ from jurors_harness.secret_scan import scan_history, scan_tree
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Scan for credentials and machine-specific paths")
     parser.add_argument("--root", type=Path, default=Path("."))
-    parser.add_argument("--history", action="store_true", help="also scan committed history with git grep")
+    parser.add_argument("--history", action="store_true", help="also scan reachable Git objects")
     args = parser.parse_args(argv)
     findings = scan_tree(args.root)
     if args.history:

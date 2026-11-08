@@ -1,10 +1,44 @@
-# Jurors harness
+# Hong Kong Jurors List Harness
 
-A reusable Python harness for **literal (diplomatic) transcription** of historical printed lists. Two blind readers transcribe the same crop, a strict comparison treats punctuation and accents as real differences, and one anonymized adjudication resolves what they do not settle. Anything still unclear is **UNCERTAIN**. It is not sent to another model.
+A custom Python harness for literal transcription of historical printed lists: two blind model readers, strict comparison, one bounded adjudication, explicit uncertainty, and reproducible releases.
 
-The first project this is built for is the Hong Kong Jurors Lists, 1854–1947. This repository is the harness, written so it can be published later. It does not contain scans, a finished year, reference transcriptions, or API keys. No year in this tree is claimed to be verified.
+I built this around the Hong Kong Jurors Lists because a plausible reading is not necessarily what the printer put on the page. Models and reference transcriptions can agree while silently correcting the same unusual spelling. This harness preserves the distinction between agreement, informed judgment, and verification.
 
-The scanned page is the authority. Printer's typos stay. An asterisk is a printed mark, not a class. Leader dots and typographic styling are left out of the instructions on purpose, and that exclusion is recorded in the closeout.
+**Status: experimental, demonstrated on retained real-source evidence.** The 1940 acceptance case migrated 3,505 pilot entries without changing the retained edition, preserved historical provenance, and replayed releases with network access blocked. It required no new paid transcription calls. It did not establish perfect accuracy or a complete-year edition. [Read the acceptance results and limits](docs/ACCEPTANCE-1940.md).
+
+## What is demonstrated
+
+| Capability | Evidence |
+|---|---|
+| Workflow, cost controls, request-aware caching, and restart mechanics | 59 passing offline tests in the publication candidate |
+| Real-evidence migration | 3,505 entries; 10,988 reading variants and 497 informed decisions imported with disclosed provenance gaps |
+| Bounded real-source workflow | Five purposive cases exercised comparison, decisions, and release construction using retained evidence |
+| Deterministic replay | Both acceptance releases reproduced byte-for-byte with network connections refused |
+| Accuracy | Model-reviewed evidence only; no independent human labels or perfection claim |
+
+The repository contains code and synthetic fixtures, not historical scans, the private acceptance corpus, or a published juror edition. The synthetic images are generated color blocks: the demo exercises plumbing and policy, not recognition quality.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    I[Inventory and crop hashes] --> A[Blind reader A]
+    I --> B[Blind reader B]
+    A --> C[Strict comparison]
+    B --> C
+    C --> D[Deduplicated unresolved fields]
+    D --> E[One informed adjudication]
+    C --> F[Versioned dispositions]
+    E --> F
+    F --> G[Release and offline replay]
+    F --> H[Reference discrepancy flags]
+```
+
+This is model orchestration controlled by Python. Models supply bounded readings and judgments; they do not choose their own tools, expand the task, or launch additional agents. The router uses configured routes, not automatic model selection. Lexicon and cross-year “learning” are flags, not model training.
+
+## My role and AI assistance
+
+Andrew Greene: problem definition, source and evidence standards, workflow direction, acceptance criteria, review, and iteration. AI coding and review agents helped implement, test, and critique the software. The Git history retains that assistance and the subsequent fixes. The engineering record matters more than a claim to have written every line unaided.
 
 ## Pipeline
 
@@ -72,7 +106,7 @@ Dispatch also requires a total cap, a budget for every stage (`probe`, `reader_a
 
 ## Resume
 
-Every completed call is cached by year, crop hash, stage, model, prompt version, and entry id. A second `run` skips those calls. The ledger is append-only, so the restart does not pay them again.
+Completed calls are cached using the full material request identity, including rendered prompts, candidate context, image bytes, model settings, destination, and timeout, alongside entry and stage identity. Credentials are excluded. Incompatible historical rows are not silently reused as current calls. A second `run` skips those calls. The ledger is append-only, so the restart does not pay them again.
 
 On any stop the work directory gets `RESUME.md` and `RESUME.json`:
 
@@ -111,10 +145,12 @@ python scripts/secret_scan.py
 python scripts/secret_scan.py --history
 ```
 
-Tests use synthetic fixtures and mocked providers. They cover the billing stop, 4xx, 5xx and timeout retries, resume, and caps. They do not use real scans or real transcriptions.
+The publication candidate passes 59 offline tests. Tests use synthetic fixtures and mocked providers. They cover the billing stop, 4xx, 5xx and timeout retries, resume, and caps. They do not use real scans or real transcriptions.
 
 ## License and rights
 
-`LICENSE` is a placeholder. The code license and the data license are both **undecided**. Do not assume an open-source license, and do not republish scans or transcriptions from a run directory. Reference text is never written into a release.
+Software, original documentation, and synthetic fixtures are available under the [MIT license](LICENSE). External source material has separate rights; see [DATA-NOTICE.md](DATA-NOTICE.md). No historical scans, reference text, or private run evidence are licensed by this code release.
 
-See `CONTRIBUTING.md` before changing a prompt or “correcting” a printed spelling. See `docs/INTERPRETATIONS.md` for choices the 2026-11-08 design left open.
+## Build in public
+
+The next milestone is a second real-year workflow through the harness. Broader accuracy and layout-transfer claims remain unproven. See the [development notes](docs/devlog/) for the design and fixes, and [Impresa](https://impresa.com/) for Andrew’s broader work.

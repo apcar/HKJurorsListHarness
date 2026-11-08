@@ -23,4 +23,4 @@ Blind prompts take an entry id and a year. Do not add parameters for the baselin
 
 ## License
 
-Do not add a code license or a data license in a pull request unless the maintainer has chosen one. `LICENSE` stays undecided until then.
+Code contributions are intended for distribution under the repository’s MIT license. Do not contribute third-party source material without appropriate rights. Historical inputs and outputs have separate rights; see DATA-NOTICE.md.

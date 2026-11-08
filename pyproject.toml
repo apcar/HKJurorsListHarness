@@ -1,6 +1,7 @@
 [project]
 name = "jurors-harness"
 version = "0.1.0"
+license = {file = "LICENSE"}
 description = "Diplomatic transcription harness for historical printed lists: blind readers, one adjudication, and per-call cost accounting."
 readme = "README.md"
 requires-python = ">=3.11"

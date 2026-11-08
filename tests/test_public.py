@@ -30,7 +30,7 @@ def test_secret_scan_catches_a_planted_credential_and_path(tmp_path: Path):
     assert "personal-path" in kinds
 
 
-def test_public_files_exist_and_license_is_undecided():
+def test_public_files_exist_and_license_is_mit():
     for relative in (
         "README.md",
         "CONTRIBUTING.md",
@@ -46,8 +46,8 @@ def test_public_files_exist_and_license_is_undecided():
     ):
         assert (ROOT / relative).is_file(), relative
     license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
-    assert "UNDECIDED" in license_text
-    assert "MIT" not in license_text.splitlines()[0]
+    assert license_text.startswith("MIT License")
+    assert (ROOT / "DATA-NOTICE.md").is_file()
     ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
     for needle in (".env", "runs/", "data/", "scans/", "ledgers/"):
         assert needle in ignore

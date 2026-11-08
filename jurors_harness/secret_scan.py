@@ -87,36 +87,34 @@ def _history_needles() -> list[str]:
 
 
 def scan_history(root: Path) -> list[Finding]:
-    """Scan committed blobs. A missing git history is reported, not treated as clean."""
+    """Scan every reachable text blob and commit message; never echo matched values."""
     try:
-        commits = subprocess.run(
-            ["git", "rev-list", "--all"],
-            cwd=root,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        result = subprocess.run(["git", "rev-list", "--objects", "--all"], cwd=root,
+                                capture_output=True, text=True, check=False)
     except FileNotFoundError:
         return [Finding("git", 0, "git-not-available")]
-    if commits.returncode != 0:
+    if result.returncode:
         return [Finding("git", 0, "git-history-unavailable")]
-    revisions = [line.strip() for line in commits.stdout.splitlines() if line.strip()]
-    if not revisions:
-        return []
     findings: list[Finding] = []
-    for needle in _history_needles():
-        result = subprocess.run(
-            ["git", "grep", "-I", "-n", "-F", "-e", needle, "--", *revisions],
-            cwd=root,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        if result.returncode not in {0, 1}:
-            findings.append(Finding("git", 0, "git-grep-failed"))
+    for line in result.stdout.splitlines():
+        oid = line.split(" ", 1)[0]
+        kind = subprocess.run(["git", "cat-file", "-t", oid], cwd=root,
+                              capture_output=True, text=True, check=False)
+        if kind.returncode:
+            findings.append(Finding(oid, 0, "git-object-unavailable"))
             continue
-        for line in result.stdout.splitlines():
-            findings.append(Finding(line[:240], 0, "history"))
+        if kind.stdout.strip() not in {"blob", "commit", "tag"}:
+            continue
+        obj = subprocess.run(["git", "cat-file", "-p", oid], cwd=root,
+                             capture_output=True, check=False)
+        if obj.returncode:
+            findings.append(Finding(oid, 0, "git-object-unavailable"))
+            continue
+        try:
+            text = obj.stdout.decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+        findings.extend(_scan_text(oid, text))
     return findings
 
 

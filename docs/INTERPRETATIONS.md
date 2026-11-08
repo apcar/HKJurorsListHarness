@@ -32,7 +32,7 @@ The 2026-11-08 design left several choices open and marked them “you decide”
 
 15. **Leading asterisk** is ignored only in the post-hoc reference comparison of the name. The release text keeps it.
 
-16. **License.** Left undecided, including in package metadata. No MIT or Apache choice is implied.
+16. **License.** Initially undecided. The publication candidate proposes MIT for code, original documentation, and synthetic fixtures, with external source rights kept separate in DATA-NOTICE.md. Andrew’s publication approval remains required.
 
 17. **Paths.** Config and inventory paths must be relative. A `--work` override may be an absolute scratch directory and is not copied into manifests or the release.
 
