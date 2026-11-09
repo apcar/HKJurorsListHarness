@@ -34,7 +34,7 @@ This became an exercise in **custom harness engineering**: giving the checking p
 
 Unresolved fields receive one adjudication pass, which can inspect the source and the competing readings. If the evidence still does not support a decision, the result remains uncertain. Reference text enters only after those readings and decisions, as a separate cross-check.
 
-![Two blind readers, strict comparison, bounded adjudication, and a versioned result](docs/images/bounded-workflow.svg)
+![Two blind AI readers, one model adjudication, and uncertain cases retained for future human review; settled does not mean independently human-verified](https://raw.githubusercontent.com/apcar/HKJurorsListHarness/c106a4da9ac3085dd76d73567045a94ef182d81f/docs/images/bounded-workflow.svg)
 
 The engineering around that sequence serves four purposes:
 
