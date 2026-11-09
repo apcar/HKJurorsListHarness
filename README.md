@@ -28,6 +28,13 @@ These are documented examples, not a model leaderboard or an estimate of error r
 
 ![Explanatory illustration of Ld. being changed to Ltd.; not a historical scan](docs/images/literal-vs-normalized.svg)
 
+Changing `Ld.` to `Ltd.` seems harmless. The company is still recognizable, but the extra letter came from the model, and a later reader could mistake it for what the record actually printed. If a comparison ignores small changes like this, two readings can appear to agree even when the printed wording has changed. With names and row boundaries, the consequences are bigger.
+
+- **Two names on consecutive lines.** Claude Hamilton Rolfe, a merchant, appears directly above Louis de Rome, an engineer. Gwulo incorrectly lists the merchant as “Rolfe, Louis de.” A search for Claude Hamilton Rolfe can miss the entry. Our agentic transcription pilot keeps both names on their printed rows. [Gwulo’s rows](https://gwulo.com/jurors-list-1940#:~:text=Rolfe%2C%20Louis%20de)
+- **A name lost in the searchable text.** The scan names Leung Tin-wai, but Gwulo’s name field reads “Indeed Tin-wai after Ting-kau.” Our baseline and final AI reviewer both read Leung Tin-wai. The reviewer confirmed the name and put a note about worn print in the uncertainty field. The export treated the note as a hold and printed `[UNRESOLVED]`. The scan and saved decision let a human reviewer check both the reading and why it was held. [Gwulo’s row](https://gwulo.com/jurors-list-1940#:~:text=Indeed%20Tin%2Dwai%20after%20Ting%2Dkau)
+
+[See the scan crops and all three comparisons on Impresa.](https://impresa.com/work/hong-kong-jurors-list-harness#1940-record-comparisons)
+
 ## From better prompts to a repeatable workflow
 
 So I kept tinkering. I tried different optical character recognition (OCR) tools, local models, hosted readers, stricter prompts, and repaired image crops. Some changes helped. Others introduced new problems. Getting useful text was relatively easy; knowing what I could trust took more engineering.
