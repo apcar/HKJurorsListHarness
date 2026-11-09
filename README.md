@@ -28,12 +28,46 @@ These are documented examples, not a model leaderboard or an estimate of error r
 
 ![Explanatory illustration of Ld. being changed to Ltd.; not a historical scan](docs/images/literal-vs-normalized.svg)
 
-Changing `Ld.` to `Ltd.` seems harmless. The company is still recognizable, but the extra letter came from the model, and a later reader could mistake it for what the record actually printed. If a comparison ignores small changes like this, two readings can appear to agree even when the printed wording has changed. With names and row boundaries, the consequences are bigger.
+Changing `Ld.` to `Ltd.` seems harmless. You still recognize the company, but the model has silently changed what the record says. The same problem is harder to catch when the text looks plausible and belongs to someone else.
 
-- **Two names on consecutive lines.** Claude Hamilton Rolfe, a merchant, appears directly above Louis de Rome, an engineer. Gwulo incorrectly lists the merchant as “Rolfe, Louis de.” A search for Claude Hamilton Rolfe can miss the entry. Our agentic transcription pilot keeps both names on their printed rows. [Gwulo’s rows](https://gwulo.com/jurors-list-1940#:~:text=Rolfe%2C%20Louis%20de)
-- **A name lost in the searchable text.** The scan names Leung Tin-wai, but Gwulo’s name field reads “Indeed Tin-wai after Ting-kau.” Our baseline and final AI reviewer both read Leung Tin-wai. The reviewer confirmed the name and put a note about worn print in the uncertainty field. The export treated the note as a hold and printed `[UNRESOLVED]`. The scan and saved decision let a human reviewer check both the reading and why it was held. [Gwulo’s row](https://gwulo.com/jurors-list-1940#:~:text=Indeed%20Tin%2Dwai%20after%20Ting%2Dkau)
+#### 1. One extra letter
 
-[See the scan crops and all three comparisons on Impresa.](https://impresa.com/work/hong-kong-jurors-list-harness#1940-record-comparisons)
+**Original record.** The printed occupation ends in `China Motor Bus Co., Ld.`
+
+![Original scan of Ngan Shing-kwan’s entry showing Ld.](https://impresa.com/jurors/hard-case-ld.png)
+
+**Gwulo record.** Gwulo preserves `Ld.`. [See the Gwulo entry](https://gwulo.com/jurors-list-1940#:~:text=Ngan%20Shing%2Dkwan)
+
+![Gwulo’s entry for Ngan Shing-kwan showing Ld.](https://impresa.com/jurors/1940-gwulo-ngan.png)
+
+**Pilot output.** One model check expanded the abbreviation to `Ltd.`. The saved pilot kept `Ld.`, as printed.
+
+#### 2. The next person’s name
+
+**Original record.** Claude Hamilton Rolfe, a merchant at C. H. Rolfe, appears directly above Louis de Rome, an engineer at H.K. Electric.
+
+![Original scan of Claude Hamilton Rolfe’s row](https://impresa.com/jurors/1940-rolfe.png)
+![Original scan of Louis de Rome’s row immediately below](https://impresa.com/jurors/1940-rome.png)
+
+**Gwulo record.** The merchant appears as **“Rolfe, Louis de”**. The engineer still appears as **“Rome, Louis de”** on the next row. A search for Claude Hamilton Rolfe can miss the merchant’s entry. [See both rows on Gwulo](https://gwulo.com/jurors-list-1940#:~:text=Rolfe%2C%20Louis%20de)
+
+![Gwulo’s adjacent rows show Louis de as the given names of both Rolfe and Rome](https://impresa.com/jurors/1940-gwulo-rolfe-rome.png)
+
+**Pilot output.** `Rolfe, Claude Hamilton,` remains the merchant, and `Rome, Louis de` remains the engineer. Both names match their printed rows.
+
+#### 3. A readable name that the export held
+
+**Original record.** Leung Tin-wai is listed as an American Express clerk at 223 Jaffé Road.
+
+![Original scan showing Leung Tin-wai, his employer, and his address](https://impresa.com/jurors/1940-leung.png)
+
+**Gwulo record.** The name field reads **“Indeed Tin-wai after Ting-kau”**. The employer and address are still there, but a search for his full name can miss him. [See the Gwulo entry](https://gwulo.com/jurors-list-1940#:~:text=Indeed%20Tin%2Dwai%20after%20Ting%2Dkau)
+
+![Gwulo’s name field reads Indeed Tin-wai after Ting-kau](https://impresa.com/jurors/1940-gwulo-leung.png)
+
+**Pilot output.** The export shows `[UNRESOLVED]` for the name and retains the employer and address. The baseline and final AI reviewer both read **Leung Tin-wai**. The reviewer confirmed the name and said the worn print was clear enough to read. But it put that observation in the uncertainty field, and the export rule treated any text in that field as a hold. A human reviewer can read the crop directly and see why the export withheld a name the model had already read.
+
+[View the full evidence comparisons and source references on Impresa](https://impresa.com/work/hong-kong-jurors-list-harness#1940-record-comparisons)
 
 ## From better prompts to a repeatable workflow
 
