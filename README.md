@@ -6,6 +6,8 @@ The task looked straightforward. Read the pages, extract the rows, and follow pe
 
 This repository contains the Python software I built to make that work more dependable. It is a **transcription harness**: a workflow around the models that controls what they read, compares their answers, preserves the evidence, and leaves uncertainty visible.
 
+Read the [Impresa case study](https://impresa.com/work/hong-kong-jurors-list-harness) for the family-history question that started the project, examples from the original scans, and what the experiments taught me.
+
 The aim is **diplomatic transcription**—preserving what the source actually says, including unusual spellings, abbreviations, and punctuation. A corrected spelling may help a search. It should not silently replace the historical record.
 
 ## Why these lists—and why the details matter
@@ -71,6 +73,8 @@ python -m jurors_harness run \
   --config configs/examples/synthetic-year.json \
   --work runs/synthetic-1939-demo
 ```
+
+Start by opening `runs/synthetic-1939-demo/` to inspect the demo output. The [usage guide](https://github.com/apcar/HKJurorsListHarness/blob/main/docs/USAGE.md#replay) shows how to verify and replay the release offline.
 
 The demo uses scripted provider responses: no network calls or paid inference. Names are invented, images are color blocks, and ledger costs are simulated. It exercises the workflow, not OCR quality.
 
