@@ -10,6 +10,41 @@ Read the [Impresa case study](https://impresa.com/work/hong-kong-jurors-list-har
 
 The aim is **diplomatic transcription**—preserving what the source actually says, including unusual spellings, abbreviations, and punctuation. A corrected spelling may help a search. It should not silently replace the historical record.
 
+[Quick start](#try-it-without-an-api-key) · [Source examples](#why-these-listsand-why-the-details-matter) · [Workflow](#from-better-prompts-to-a-repeatable-workflow) · [Results and limits](#what-has-been-demonstrated)
+
+## Try it without an API key
+
+The demo uses scripted provider responses: no network calls or paid inference. Names are invented, images are color blocks, and ledger costs are simulated. It exercises the workflow, not OCR quality.
+
+You need Git and Python 3.11 or later. Runtime dependencies are limited to the standard library. In a terminal:
+
+```bash
+git clone https://github.com/apcar/HKJurorsListHarness.git
+cd HKJurorsListHarness
+export JURORS_HARNESS_AUTHORIZE=synthetic-1939-demo
+python3 -m jurors_harness run \
+  --config configs/examples/synthetic-year.json \
+  --work runs/synthetic-1939-demo
+```
+
+The command writes its results under `runs/synthetic-1939-demo/release/1939-synthetic-rc1/`. Start with:
+
+- `1939-synthetic-rc1.csv` — the released records and their dispositions.
+- `UNCERTAIN-LINES.jsonl` — fields retained for review.
+- `CLOSEOUT.md` — the run summary and omissions.
+
+The fixture has seven inventory rows: six included and one excluded. The six included records finish as two settled, two corrected, and two uncertain. Verify that the release reproduces exactly:
+
+```bash
+python3 -m jurors_harness verify-release \
+  --rcdir runs/synthetic-1939-demo/release/1939-synthetic-rc1
+```
+
+A successful check reports `"passed": true` and `"byte_equal": true`. The [replay guide](docs/USAGE.md#replay) explains how to write a separate replayed CSV.
+
+
+The [usage guide](docs/USAGE.md) covers installation, inputs, budgets, resuming interrupted work, and replay.
+
 ## Why these lists—and why the details matter
 
 The Hong Kong Jurors Lists recorded men eligible for jury service. The series spans 88 years, from 1854 to 1941. Our working reference inventory contains roughly 98,000 annual entries across 87 retrieved years: a provisional inventory, not a verified source census or a count of unique people.
@@ -30,7 +65,7 @@ These are documented examples, not a model leaderboard or an estimate of error r
 
 Changing `Ld.` to `Ltd.` seems harmless. You still recognize the company, but the model has silently changed what the record says. The same problem is harder to catch when the text looks plausible and belongs to someone else.
 
-#### 1. One extra letter
+### 1. One extra letter
 
 **Original record.** The printed occupation ends in `China Motor Bus Co., Ld.`
 
@@ -38,24 +73,29 @@ Changing `Ld.` to `Ltd.` seems harmless. You still recognize the company, but th
 
 **Gwulo record.** Gwulo preserves `Ld.`. [See the Gwulo entry](https://gwulo.com/jurors-list-1940#:~:text=Ngan%20Shing%2Dkwan)
 
-![Gwulo’s entry for Ngan Shing-kwan showing Ld.](https://impresa.com/jurors/1940-gwulo-ngan.png)
+<a href="https://impresa.com/jurors/1940-gwulo-ngan.png"><img src="https://impresa.com/jurors/1940-gwulo-ngan.png" alt="Gwulo’s entry for Ngan Shing-kwan showing Ld." width="640" /></a>
 
 **Pilot output.** One model check expanded the abbreviation to `Ltd.`. The saved pilot kept `Ld.`, as printed.
 
-#### 2. The next person’s name
+---
+
+### 2. The next person’s name
 
 **Original record.** Claude Hamilton Rolfe, a merchant at C. H. Rolfe, appears directly above Louis de Rome, an engineer at H.K. Electric.
 
 ![Original scan of Claude Hamilton Rolfe’s row](https://impresa.com/jurors/1940-rolfe.png)
+
 ![Original scan of Louis de Rome’s row immediately below](https://impresa.com/jurors/1940-rome.png)
 
 **Gwulo record.** The merchant appears as **“Rolfe, Louis de”**. The engineer still appears as **“Rome, Louis de”** on the next row. A search for Claude Hamilton Rolfe can miss the merchant’s entry. [See both rows on Gwulo](https://gwulo.com/jurors-list-1940#:~:text=Rolfe%2C%20Louis%20de)
 
-![Gwulo’s adjacent rows show Louis de as the given names of both Rolfe and Rome](https://impresa.com/jurors/1940-gwulo-rolfe-rome.png)
+<a href="https://impresa.com/jurors/1940-gwulo-rolfe-rome.png"><img src="https://impresa.com/jurors/1940-gwulo-rolfe-rome.png" alt="Gwulo’s adjacent rows show Louis de as the given names of both Rolfe and Rome" width="640" /></a>
 
 **Pilot output.** `Rolfe, Claude Hamilton,` remains the merchant, and `Rome, Louis de` remains the engineer. Both names match their printed rows.
 
-#### 3. A readable name that the export held
+---
+
+### 3. A readable name that the export held
 
 **Original record.** Leung Tin-wai is listed as an American Express clerk at 223 Jaffé Road.
 
@@ -63,9 +103,13 @@ Changing `Ld.` to `Ltd.` seems harmless. You still recognize the company, but th
 
 **Gwulo record.** The name field reads **“Indeed Tin-wai after Ting-kau”**. The employer and address are still there, but a search for his full name can miss him. [See the Gwulo entry](https://gwulo.com/jurors-list-1940#:~:text=Indeed%20Tin%2Dwai%20after%20Ting%2Dkau)
 
-![Gwulo’s name field reads Indeed Tin-wai after Ting-kau](https://impresa.com/jurors/1940-gwulo-leung.png)
+<a href="https://impresa.com/jurors/1940-gwulo-leung.png"><img src="https://impresa.com/jurors/1940-gwulo-leung.png" alt="Gwulo’s name field reads Indeed Tin-wai after Ting-kau" width="640" /></a>
 
-**Pilot output.** The export shows `[UNRESOLVED]` for the name and retains the employer and address. The baseline and final AI reviewer both read **Leung Tin-wai**. The reviewer confirmed the name and said the worn print was clear enough to read. But it put that observation in the uncertainty field, and the export rule treated any text in that field as a hold. A human reviewer can read the crop directly and see why the export withheld a name the model had already read.
+**Pilot output.** The export shows `[UNRESOLVED]` for the name and retains the employer and address.
+
+The baseline and final AI reviewer both read **Leung Tin-wai**. The reviewer confirmed the name and said the worn print was clear enough to read.
+
+But it put that observation in the uncertainty field, and the export rule treated any text in that field as a hold. A human reviewer can read the crop directly and see why the export withheld a name the model had already read.
 
 [View the full evidence comparisons and source references on Impresa](https://impresa.com/work/hong-kong-jurors-list-harness#1940-record-comparisons)
 
@@ -103,23 +147,6 @@ The retained edition records **3,058 settled, 84 corrected, and 363 uncertain en
 The result demonstrates migration, preservation, and replay. It does not establish perfect transcription or a complete year. Earlier work also produced local 1906 and 1908 editions under different workflows. [Acceptance evidence and limits](docs/ACCEPTANCE-1940.md).
 
 **59 offline tests pass.** This repository includes the code, original diagrams, and synthetic fixtures. It excludes the private historical corpus, so the historical acceptance case cannot be independently reproduced from this repository alone. The synthetic demo below provides a way to exercise the workflow yourself.
-
-## Try it without an API key
-
-You need Python 3.11 or later. Runtime dependencies are limited to the standard library. From the checkout:
-
-```bash
-export JURORS_HARNESS_AUTHORIZE=synthetic-1939-demo
-python -m jurors_harness run \
-  --config configs/examples/synthetic-year.json \
-  --work runs/synthetic-1939-demo
-```
-
-Start by opening `runs/synthetic-1939-demo/` to inspect the demo output. The [usage guide](https://github.com/apcar/HKJurorsListHarness/blob/main/docs/USAGE.md#replay) shows how to verify and replay the release offline.
-
-The demo uses scripted provider responses: no network calls or paid inference. Names are invented, images are color blocks, and ledger costs are simulated. It exercises the workflow, not OCR quality.
-
-The [usage guide](docs/USAGE.md) covers installation, inputs, budgets, resuming interrupted work, and replay.
 
 ## Why this may be useful beyond family history
 
