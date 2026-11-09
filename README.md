@@ -98,12 +98,8 @@ I set the research question, source standards, workflow, and acceptance criteria
 
 ## Credits and license
 
-This work builds on a substantial contribution by **David Bellis and the Gwulo community**. From July 2010 to June 2026, volunteers typed 1,769 pages covering the 1854–1941 series, making difficult-to-search scans searchable.
+**David Bellis and the Gwulo volunteers** made Hong Kong’s 1854–1941 jurors lists searchable. In July 2010, David asked Gwulo readers to type up individual pages. He brought their work together and published the completed lists on Gwulo. By June 2026, volunteers had transcribed 1,769 pages. Their work helped me see what was worth attempting here, and I use it as a cross-check after making my own readings from the scans. [Gwulo’s Jurors Lists](https://gwulo.com/node/6706) · [Project history and contributor acknowledgments](https://gwulo.com/node/62380)
 
-The [completion account](https://gwulo.com/node/62380) acknowledges 61 contributor names and usernames. Bellis notes that the formats are mixed and the list may be incomplete, so this is an acknowledgment count rather than a verified count of distinct volunteers.
-
-Their nearly 16-year effort began long before today’s widely accessible AI tools. It made these records useful to researchers and helped me understand what was worth attempting. HKU Libraries supplied the scans that enabled both projects.
-
-Here, Gwulo’s transcription serves as a cross-check after the source readings and decisions. It is not redistributed, and no endorsement is implied.
+**The University of Hong Kong Libraries** made the original scans available to both projects through its Hong Kong Government Reports Online collection. [Hong Kong Government Reports Online (HKGRO)](https://digitalrepository.lib.hku.hk/hkgro)
 
 The [MIT license](LICENSE) covers the software, original documentation, and synthetic fixtures. Historical scans, family photographs, reference text, and private run evidence are excluded. [Data notice](DATA-NOTICE.md).
